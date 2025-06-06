@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Management System</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Student Management System</h1>
+            <nav>
+                <button id="studentsTab" class="nav-btn active">Students</button>
+                <button id="subjectsTab" class="nav-btn">Subjects</button>
+                <button id="gradesTab" class="nav-btn">Grades</button>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Students Section -->
+            <section id="studentsSection" class="section active">
+                <div class="section-header">
+                    <h2>Students</h2>
+                    <button id="addStudentBtn" class="btn btn-primary">Add Student</button>
+                </div>
+                <div class="table-container">
+                    <table id="studentsTable">
+                        <thead>
+                            <tr>
+                                <th>Student ID</th>
+                                <th>Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Enrollment Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Subjects Section -->
+            <section id="subjectsSection" class="section">
+                <div class="section-header">
+                    <h2>Subjects</h2>
+                    <button id="addSubjectBtn" class="btn btn-primary">Add Subject</button>
+                </div>
+                <div class="table-container">
+                    <table id="subjectsTable">
+                        <thead>
+                            <tr>
+                                <th>Code</th>
+                                <th>Name</th>
+                                <th>Credits</th>
+                                <th>Description</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Grades Section -->
+            <section id="gradesSection" class="section">
+                <div class="section-header">
+                    <h2>Grades Management</h2>
+                    <div class="filters">
+                        <select id="studentFilter">
+                            <option value="">Select Student</option>
+                        </select>
+                        <select id="subjectFilter">
+                            <option value="">Select Subject</option>
+                        </select>
+                        <button id="addGradeBtn" class="btn btn-primary">Add Grade</button>
+                    </div>
+                </div>
+                <div class="grades-container">
+                    <div id="gradesContent">
+                        <p>Select a student and subject to view grades</p>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Modal for forms -->
+    <div id="modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+</body>
+</html>
