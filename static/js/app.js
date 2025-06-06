@@ -38,26 +38,46 @@ class StudentManagementSystem {
     // Grade filters
     document.getElementById("studentFilter").addEventListener("change", () => this.loadGradesForStudent())
     document.getElementById("subjectFilter").addEventListener("change", () => this.loadGradesForStudent())
+
+    // Back to students button in details view
+    const backToStudentsBtn = document.getElementById("backToStudentsBtn");
+    if (backToStudentsBtn) {
+      backToStudentsBtn.addEventListener("click", () => {
+        const studentDetailsSec = document.getElementById("studentDetailsSection");
+        if (studentDetailsSec) {
+          studentDetailsSec.classList.remove("active");
+        }
+        this.showSection("students");
+      });
+    }
   }
 
-  showSection(section) {
-    // Update navigation
-    document.querySelectorAll(".nav-btn").forEach((btn) => btn.classList.remove("active"))
-    document.getElementById(`${section}Tab`).classList.add("active")
+  showSection(sectionId) {
+    // Update navigation tabs
+    document.querySelectorAll(".nav-btn").forEach((btn) => btn.classList.remove("active"));
+    const activeTab = document.getElementById(`${sectionId}Tab`);
+    if (activeTab) {
+      activeTab.classList.add("active");
+    }
 
-    // Update sections
-    document.querySelectorAll(".section").forEach((sec) => sec.classList.remove("active"))
-    document.getElementById(`${section}Section`).classList.add("active")
+    // Hide all sections first, including studentDetailsSection
+    document.querySelectorAll(".section").forEach((sec) => sec.classList.remove("active"));
+    
+    // Show the target section
+    const targetSection = document.getElementById(`${sectionId}Section`);
+    if (targetSection) {
+      targetSection.classList.add("active");
+    }
 
-    this.currentSection = section
+    this.currentSection = sectionId;
 
     // Load data for the section
-    if (section === "students") {
-      this.loadStudents()
-    } else if (section === "subjects") {
-      this.loadSubjects()
-    } else if (section === "grades") {
-      this.loadGradeFilters()
+    if (sectionId === "students") {
+      this.loadStudents();
+    } else if (sectionId === "subjects") {
+      this.loadSubjects();
+    } else if (sectionId === "grades") {
+      this.loadGradeFilters();
     }
   }
 
@@ -80,6 +100,9 @@ class StudentManagementSystem {
         throw new Error(`HTTP error! status: ${response.status}`)
       }
 
+      if (response.status === 204) {
+        return null; // Or return {}; if you prefer an empty object
+      }
       return await response.json()
     } catch (error) {
       console.error("API call failed:", error)
@@ -150,9 +173,9 @@ class StudentManagementSystem {
 
   showStudentForm(student = null) {
     const isEdit = student !== null
-    const modalBody = document.getElementById("modalBody")
+    const modalContent = document.getElementById("modalContent")
 
-    modalBody.innerHTML = `
+    modalContent.innerHTML = `
             <h3>${isEdit ? "Edit Student" : "Add New Student"}</h3>
             <form id="studentForm">
                 <div class="form-group">
@@ -200,9 +223,9 @@ class StudentManagementSystem {
 
   showSubjectForm(subject = null) {
     const isEdit = subject !== null
-    const modalBody = document.getElementById("modalBody")
+    const modalContent = document.getElementById("modalContent")
 
-    modalBody.innerHTML = `
+    modalContent.innerHTML = `
             <h3>${isEdit ? "Edit Subject" : "Add New Subject"}</h3>
             <form id="subjectForm">
                 <div class="form-group">
@@ -321,6 +344,171 @@ class StudentManagementSystem {
   }
 
   async viewStudentDetails(id) {
+    try {
+      const student = await this.apiCall(`/students/${id}/`); // StudentDetailSerializer should include enrollments
+      const studentDetailsContent = document.getElementById("studentDetailsContent");
+
+      const studentDetailsSection = document.getElementById("studentDetailsSection");
+
+    if (!studentDetailsContent || !studentDetailsSection) { 
+      console.error("studentDetailsContent or studentDetailsSection element not found in the HTML.");
+      this.showError("UI element missing for student details.");
+      this.showSection("students"); 
+      return;
+    }
+
+    // Hide other main sections and show studentDetailsSection
+    document.querySelectorAll('.section').forEach(sec => {
+      if (sec.id !== 'studentDetailsSection') {
+        sec.classList.remove('active');
+      }
+    });
+    studentDetailsSection.classList.add('active');
+    // Optional: Clear active state from main navigation tabs or set 'Students' as active
+    document.querySelectorAll(".nav-btn").forEach((btn) => btn.classList.remove("active"));
+    // document.getElementById('studentsTab').classList.add('active'); // Or leave no main tab active
+
+    studentDetailsContent.innerHTML = `
+      <div class="details-header">
+        <h2>${student.full_name}</h2>
+      </div>
+
+      <div class="details-section-card student-info-card">
+        <h3>Personal Information</h3>
+        <p><strong>Student ID:</strong> ${student.student_id}</p>
+        <p><strong>Email:</strong> ${student.email}</p>
+        <p><strong>Phone:</strong> ${student.phone || 'N/A'}</p>
+        <p><strong>Date of Birth:</strong> ${new Date(student.date_of_birth).toLocaleDateString()}</p>
+        <p><strong>Address:</strong> ${student.address || 'N/A'}</p>
+        <p><strong>Enrolled Since:</strong> ${new Date(student.enrollment_date).toLocaleDateString()}</p>
+      </div>
+
+      <div class="details-section-card enrolled-subjects-card">
+        <h3>Enrolled Subjects</h3>
+        <div id="studentEnrolledSubjectsList" class="details-list-container">Loading...</div>
+      </div>
+
+      <div class="details-section-card available-subjects-card">
+        <h3>Enroll in New Subject</h3>
+        <div id="studentAvailableSubjectsList" class="details-list-container">Loading...</div>
+      </div>
+    `;
+
+      this.renderStudentEnrolledSubjects(student.enrollments || [], 'studentEnrolledSubjectsList', id);
+      
+      // Ensure all subjects are loaded before trying to render available ones
+      if (!this.subjects || this.subjects.length === 0) {
+        await this.loadSubjects(); 
+      }
+      this.renderStudentAvailableSubjects(student, 'studentAvailableSubjectsList');
+
+      // This line might be important if viewStudentDetails is intended to be its own "section"
+      // If studentDetailsContent is part of the 'students' section, this might not be strictly necessary
+      // or could be handled by ensuring 'students' section is active.
+      // For now, we assume the student details are shown within the currently active student list/details area.
+      // If you have a separate HTML section for "studentDetails", uncomment the next line:
+      // this.showSection("studentDetails"); // Or an appropriate section name
+
+    } catch (error) {
+      console.error(`Failed to load student details for student ${id}:`, error);
+      this.showError("Failed to load student details. The student might not exist or there was a server error.");
+      // Ensure the UI doesn't stay stuck on a broken details page
+      const studentDetailsContent = document.getElementById("studentDetailsContent");
+      if (studentDetailsContent) {
+          studentDetailsContent.innerHTML = "<p>Error loading student details.</p>";
+      }
+    }
+  }
+
+  renderStudentEnrolledSubjects(enrollments, targetElementId, studentId) {
+    const listElement = document.getElementById(targetElementId);
+    if (!listElement) {
+      console.error(`Element with ID ${targetElementId} not found for enrolled subjects.`);
+      return;
+    }
+    listElement.innerHTML = ""; // Clear previous content
+
+    if (!enrollments || enrollments.length === 0) {
+      listElement.innerHTML = "<p>Not currently enrolled in any subjects.</p>";
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'details-list';
+    enrollments.forEach(enrollment => {
+      const li = document.createElement('li');
+      
+      const textSpan = document.createElement('span');
+      textSpan.textContent = `${enrollment.subject_code} - ${enrollment.subject_name} (Enrolled: ${new Date(enrollment.enrollment_date).toLocaleDateString()}) `;
+      li.appendChild(textSpan);
+
+      const unenrollButton = document.createElement('button');
+      unenrollButton.className = 'btn btn-danger btn-small btn-inline';
+      unenrollButton.textContent = 'Unenroll';
+      unenrollButton.onclick = () => this.handleUnenrollStudent(enrollment.id, studentId);
+      li.appendChild(unenrollButton);
+      
+      ul.appendChild(li);
+    });
+    listElement.appendChild(ul);
+  }
+
+  renderStudentAvailableSubjects(student, targetElementId) {
+    const listElement = document.getElementById(targetElementId);
+    if (!listElement) {
+      console.error(`Element with ID ${targetElementId} not found for available subjects.`);
+      return;
+    }
+    listElement.innerHTML = ""; // Clear previous content
+
+    const enrolledSubjectIds = (student.enrollments || []).map(enr => enr.subject);
+    const availableSubjects = this.subjects.filter(sub => !enrolledSubjectIds.includes(sub.id) && sub.is_active);
+
+    if (availableSubjects.length === 0) {
+      listElement.innerHTML = "<p>No new subjects available for enrollment or already enrolled in all active subjects.</p>";
+      return;
+    }
+
+    const ul = document.createElement('ul');
+    ul.className = 'details-list';
+    availableSubjects.forEach(subject => {
+      const li = document.createElement('li');
+      li.innerHTML = `
+        <span>${subject.code} - ${subject.name}</span>
+        <button class="btn btn-success btn-small" onclick="sms.handleEnrollStudent(${student.id}, ${subject.id})">Enroll</button>
+      `;
+      ul.appendChild(li);
+    });
+    listElement.appendChild(ul);
+  }
+
+  async handleEnrollStudent(studentId, subjectId) {
+    if (!confirm("Are you sure you want to enroll this student in the selected subject?")) return;
+
+    try {
+      await this.apiCall('/enrollments/', 'POST', { student: studentId, subject: subjectId });
+      this.showSuccess("Student enrolled successfully!");
+      this.viewStudentDetails(studentId); // Refresh the student details view
+    } catch (error) {
+      console.error("Failed to enroll student:", error);
+      // The apiCall method already shows a generic error, but you can add more specific ones if needed
+    }
+  }
+
+  async handleUnenrollStudent(enrollmentId, studentId) {
+    if (!confirm("Are you sure you want to unenroll this student from this subject? All related grades will be permanently deleted.")) return;
+
+    try {
+      await this.apiCall(`/enrollments/${enrollmentId}/`, 'DELETE');
+      this.showSuccess("Student unenrolled successfully. Related grades have been deleted.");
+      this.viewStudentDetails(studentId); // Refresh the student details view
+    } catch (error) {
+      console.error(`Failed to unenroll student (enrollment ID: ${enrollmentId}):`, error);
+      this.showError("Failed to unenroll student. Please try again.");
+    }
+  }
+
+  async loadStudentSubjects(studentId) {
     try {
       const student = await this.apiCall(`/students/${id}/`)
       const modalBody = document.getElementById("modalBody")
@@ -485,33 +673,42 @@ class StudentManagementSystem {
   }
 
   async showGradeForm(grade = null) {
-    const isEdit = grade !== null
-    const modalBody = document.getElementById("modalBody")
+    const modalContent = document.getElementById("modalContent"); // Or modalBody, ensure consistency with your HTML
+    const isEdit = grade !== null;
 
-    // Load enrollments for dropdown
-    let enrollmentOptions = ""
+    let enrollmentOptionsHTML = '<option value="">Select Student - Subject</option>';
     try {
-      const enrollments = await this.apiCall("/enrollments/")
-      enrollmentOptions = enrollments
-        .map(
-          (e) =>
-            `<option value="${e.id}" ${grade?.enrollment === e.id ? "selected" : ""}>
-                    ${e.student_name} - ${e.subject_code}
-                </option>`,
-        )
-        .join("")
-    } catch (error) {
-      console.error("Failed to load enrollments:", error)
-    }
+      // Fetch fresh list of enrollments.
+      // Your EnrollmentSerializer should provide student_name, subject_code, and subject_name
+      // for a good user experience in the dropdown.
+      const allEnrollments = await this.apiCall("/enrollments/"); 
+      if (allEnrollments && allEnrollments.length > 0) {
+        allEnrollments.forEach(enr => {
+          const studentName = enr.student_name || `Student (ID: ${enr.student})`; 
+          const subjectIdentifier = enr.subject_code ? 
+            `${enr.subject_code} (${enr.subject_name || `Subject ID: ${enr.subject}`})` : 
+            `Subject (ID: ${enr.subject})`;
 
-    modalBody.innerHTML = `
-            <h3>${isEdit ? "Edit Grade" : "Add New Grade"}</h3>
+          enrollmentOptionsHTML += `<option value="${enr.id}" ${grade?.enrollment === enr.id ? "selected" : ""}>
+                                  ${studentName} - ${subjectIdentifier}
+                                </option>`;
+        });
+      } else {
+        enrollmentOptionsHTML = '<option value="">No enrollments found. Please enroll students in subjects first.</option>';
+      }
+    } catch (error) {
+      console.error("Failed to load enrollments for grade form:", error);
+      this.showError("Could not load enrollment options for the grade form.");
+      enrollmentOptionsHTML = '<option value="">Error loading enrollments.</option>';
+    }
+    
+    modalContent.innerHTML = `
+            <h2>${isEdit ? "Edit" : "Add"} Grade</h2>
             <form id="gradeForm">
                 <div class="form-group">
                     <label for="enrollment">Student - Subject:</label>
                     <select id="enrollment" name="enrollment" required>
-                        <option value="">Select Enrollment</option>
-                        ${enrollmentOptions}
+                        ${enrollmentOptionsHTML}
                     </select>
                 </div>
                 <div class="form-group">
@@ -544,14 +741,19 @@ class StudentManagementSystem {
                     <button type="submit" class="btn btn-primary">${isEdit ? "Update" : "Add"} Grade</button>
                 </div>
             </form>
-        `
+        `;
 
-    document.getElementById("gradeForm").addEventListener("submit", (e) => {
-      e.preventDefault()
-      this.saveGrade(grade?.id)
-    })
-
-    this.showModal()
+    const gradeForm = document.getElementById("gradeForm");
+    if (gradeForm) {
+        gradeForm.addEventListener("submit", (e) => {
+          e.preventDefault();
+          this.saveGrade(grade?.id);
+        });
+    } else {
+        console.error("gradeForm element not found after rendering modal content.");
+        this.showError("Could not initialize the grade form. Please check console for errors.");
+    }
+    this.showModal();
   }
 
   async saveGrade(gradeId = null) {

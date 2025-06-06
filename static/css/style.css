@@ -6,8 +6,8 @@
 
 body {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-  background-color: #f5f5f5;
-  color: #333;
+  background-color: #FFFFFF;
+  color: #2C3E50;
   line-height: 1.6;
 }
 
@@ -26,7 +26,7 @@ header {
 }
 
 header h1 {
-  color: #2c3e50;
+  color: #1E8449;
   margin-bottom: 20px;
   text-align: center;
 }
@@ -40,19 +40,19 @@ nav {
 .nav-btn {
   padding: 10px 20px;
   border: none;
-  background: #ecf0f1;
-  color: #2c3e50;
+  background: #F8F9FA;
+  color: #1E8449;
   border-radius: 5px;
   cursor: pointer;
   transition: all 0.3s ease;
 }
 
 .nav-btn:hover {
-  background: #bdc3c7;
+  background: #E0F2E0;
 }
 
 .nav-btn.active {
-  background: #3498db;
+  background: #2ECC71;
   color: white;
 }
 
@@ -78,7 +78,7 @@ nav {
 }
 
 .section-header h2 {
-  color: #2c3e50;
+  color: #1E8449;
 }
 
 .filters {
@@ -98,21 +98,21 @@ nav {
 }
 
 .btn-primary {
-  background: #3498db;
+  background: #2ECC71;
   color: white;
 }
 
 .btn-primary:hover {
-  background: #2980b9;
+  background: #27AE60;
 }
 
 .btn-secondary {
-  background: #95a5a6;
-  color: white;
+  background: #A9DFBF;
+  color: #1E8449;
 }
 
 .btn-secondary:hover {
-  background: #7f8c8d;
+  background: #82CBAA;
 }
 
 .btn-danger {
@@ -147,13 +147,13 @@ td {
 }
 
 th {
-  background: #f8f9fa;
+  background: #E0F2E0;
   font-weight: 600;
-  color: #2c3e50;
+  color: #1E8449;
 }
 
 tr:hover {
-  background: #f8f9fa;
+  background: #F0FFF0;
 }
 
 .modal {
@@ -202,7 +202,7 @@ tr:hover {
   display: block;
   margin-bottom: 5px;
   font-weight: 600;
-  color: #2c3e50;
+  color: #1E8449;
 }
 
 .form-group input,
@@ -210,7 +210,7 @@ tr:hover {
 .form-group textarea {
   width: 100%;
   padding: 10px;
-  border: 1px solid #ddd;
+  border: 1px solid #A9DFBF;
   border-radius: 5px;
   font-size: 14px;
 }
@@ -236,10 +236,10 @@ tr:hover {
 }
 
 .grade-type-section h3 {
-  color: #2c3e50;
+  color: #1E8449;
   margin-bottom: 15px;
   padding-bottom: 5px;
-  border-bottom: 2px solid #3498db;
+  border-bottom: 2px solid #2ECC71;
 }
 
 .grade-item {
@@ -247,7 +247,7 @@ tr:hover {
   padding: 15px;
   margin-bottom: 10px;
   border-radius: 5px;
-  border-left: 4px solid #3498db;
+  border-left: 4px solid #2ECC71;
 }
 
 .grade-header {
@@ -259,7 +259,7 @@ tr:hover {
 
 .grade-title {
   font-weight: 600;
-  color: #2c3e50;
+  color: #1E8449;
 }
 
 .grade-score {
@@ -299,7 +299,7 @@ tr:hover {
 }
 
 .success {
-  background: #27ae60;
+  background: #2ECC71;
   color: white;
   padding: 10px;
   border-radius: 5px;
@@ -308,9 +308,91 @@ tr:hover {
 
 select {
   padding: 8px;
-  border: 1px solid #ddd;
+  border: 1px solid #A9DFBF;
   border-radius: 5px;
   background: white;
+}
+
+/* Student Details Page Styles */
+.details-header {
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #2ECC71; /* Primary green */
+}
+
+.details-header h2 {
+  color: #1E8449; /* Darker green for main heading */
+  font-size: 24px;
+}
+
+.details-section-card {
+  background-color: #FFFFFF;
+  border: 1px solid #E0F2E0; /* Very light green border */
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+}
+
+.details-section-card h3 {
+  color: #1E8449; /* Darker green */
+  font-size: 18px;
+  margin-top: 0;
+  margin-bottom: 15px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #A9DFBF; /* Light green accent for sub-header underline */
+}
+
+.student-info-card p {
+  margin-bottom: 10px;
+  line-height: 1.6;
+  color: #2C3E50; /* Main text color */
+}
+
+.student-info-card strong {
+  color: #1E8449; /* Darker green for labels */
+  margin-right: 8px;
+}
+
+.details-list-container {
+  margin-top: 10px;
+}
+
+.details-list {
+  list-style-type: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.details-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #E0F2E0; /* Very light green separator */
+  color: #2C3E50;
+}
+
+.details-list li:last-child {
+  border-bottom: none;
+}
+
+.details-list li span {
+  flex-grow: 1;
+  margin-right: 10px;
+}
+
+.btn-inline {
+  margin-left: 10px; /* Add some space if button is next to text */
+}
+
+/* Ensure success button (used for Enroll) uses the green theme */
+.btn-success {
+  background-color: #2ECC71;
+  color: white;
+}
+.btn-success:hover {
+  background-color: #27AE60;
 }
 
 @media (max-width: 768px) {
